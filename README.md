@@ -1,19 +1,24 @@
-# 梧桐里 Loft
+# Wutong Lane Loft
 
-A small 3D loft you can spin around 360°: an old factory turned into a home on Wutong Lane, with a 5.4 m ceiling, a mezzanine bedroom and three lynx-point Siamese cats.
+![The loft turning 360°, cross-fading from the Minimal style at morning to Warm Vintage at dusk to City Neon at night](media/loft.gif)
 
-一个可以 360° 旋转欣赏的立体 loft 模型。
+A small 3D loft you can spin around 360°: an old factory on Wutong Lane turned into a home, with 5.4 m ceilings, a mezzanine bedroom and three lynx-point Siamese cats.
 
 ## What's inside
 
 - **Three styles**, switchable from the panel and remembered per browser:
-  - 性冷淡: painted white brick, microcement floor, black steel, black-and-white photos
-  - 复古暖调: red brick, honey wood floor, sage kitchen, cognac leather
-  - 城市霓虹: pink brick, terrazzo, mint and lilac, neon signs, a blossom tree outside
+  - **Minimal**: white-painted brick, microcement floor, black steel and black-and-white photos
+  - **Warm Vintage**: red brick, honey wood floor, a sage-green kitchen and cognac leather
+  - **City Neon**: pink brick, terrazzo, mint and lilac, neon signs and a blossom tree outside
+- **English and Chinese**: a language switch in the top-right corner changes every label and caption
 - **Three times of day**: morning, dusk and night, each with its own sky and lighting
 - **Six views**: overview, living room, bedroom, kitchen, stairs and the photo wall
-- **Things that move**: the cats breathe, the kitten bats a tennis ball, leaves fall outside, and the record spins while music plays
-- **Background music**: an original city-pop loop synthesized live in the browser with the Web Audio API (Rhodes, bass, drums, pad, a short lead line, tape wobble and vinyl crackle). Press 音乐 to start it.
+- **Small things that move**: the cats breathe, the kitten bats a tennis ball, leaves fall outside, and the record spins while music plays
+- **Background music**: an original city-pop loop synthesized live in the browser with the Web Audio API (electric piano, bass, drums, pad, a short lead line, tape wobble and vinyl crackle). Press **Music** to start it.
+
+## Sharing a demo in one language
+
+Add `#en` or `#zh` to the link. `index.html#en` always opens in English and `index.html#zh` in Chinese. Without either, the page uses the viewer's last choice, then their browser language. Switching languages on the page updates the link, so you can copy it from the address bar.
 
 ## Run it
 

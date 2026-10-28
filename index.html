@@ -1,9 +1,10 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>梧桐里 Loft</title>
+<title>Wutong Lane Loft</title>
+<meta name="description" content="A 360° three.js loft with three switchable styles, English and Chinese text, and a live-synthesized city-pop soundtrack.">
 <style>
 :root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{margin:0;font:14px/1.4 system-ui,-apple-system,sans-serif}
@@ -28,6 +29,8 @@ img{max-width:100%}
   --sky-ink:#f7f7f5;
   --sky-ink-soft:rgba(247,247,245,.76);
   --sky-shadow:rgba(10,12,16,.25);
+  --sky-ink-inv:#1b1b1b;
+  --scrim:rgba(12,14,20,.42);
   --accent:#1b1b1b;
   --accent-warm:#94652a;
   --accent-neon:#d6337a;
@@ -53,14 +56,18 @@ img{max-width:100%}
   --accent:#ececea;--accent-warm:#dfab60;--accent-neon:#ff7ab6;--eyebrow:#9a9a97;
   color-scheme:dark;
 }
-#app[data-mood="morning"]{--sky-ink:#22272c;--sky-ink-soft:rgba(34,39,44,.66);--sky-shadow:rgba(255,255,255,.35)}
+#app[data-mood="morning"]{--sky-ink:#22272c;--sky-ink-soft:rgba(34,39,44,.66);--sky-shadow:rgba(255,255,255,.35);--sky-ink-inv:#f7f7f5;--scrim:rgba(250,250,248,.62)}
 #app[data-style="warm"]{--accent:var(--accent-warm);--eyebrow:var(--accent-warm);--radius:14px;--f-display:var(--f-warm)}
 #app[data-style="warm"] .brand h1{font-weight:400;letter-spacing:.1em}
 #app[data-style="warm"] .caption{font-weight:400;letter-spacing:.02em}
 #app[data-style="neon"]{--accent:var(--accent-neon);--eyebrow:var(--accent-neon);--radius:10px;--f-display:var(--f-neon)}
 #app[data-style="neon"] .brand h1{font-weight:400;letter-spacing:.14em;text-shadow:0 0 18px rgba(255,80,170,.45),0 1px 14px var(--sky-shadow)}
-#app[data-style="neon"] .brand h1 span{font-family:"Monoton",var(--f-mono);font-size:15px;letter-spacing:.14em;color:#ffb3d6;text-shadow:0 0 8px rgba(255,80,170,.85)}
+#app[data-style="neon"] .brand h1 .lt{font-family:"Monoton",var(--f-mono);font-size:15px;letter-spacing:.14em;color:#ffb3d6;text-shadow:0 0 8px rgba(255,80,170,.85)}
 #app[data-style="neon"] .caption{font-weight:400}
+#app[data-lang="en"] .brand h1{letter-spacing:.04em;font-size:clamp(26px,3.2vw,36px)}
+#app[data-lang="en"] .caption{letter-spacing:.01em;line-height:1.7}
+#app[data-lang="en"] .tab{letter-spacing:.04em}
+#app[data-lang="en"] .sty,#app[data-lang="en"] .seg button,#app[data-lang="en"] .music,#app[data-lang="en"] .spin{letter-spacing:.03em}
 
 html{box-sizing:border-box;height:100%}
 *,*::before,*::after{box-sizing:inherit}
@@ -98,7 +105,7 @@ body{height:100%;background:var(--bg);color:var(--ink);font-family:var(--f-body)
 .brand{color:var(--sky-ink);text-shadow:0 1px 14px var(--sky-shadow);transition:color 1.2s ease}
 .kicker{margin:0 0 10px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--sky-ink-soft)}
 .brand h1{margin:0;display:flex;align-items:baseline;gap:18px;font-family:var(--f-display);font-weight:300;font-size:clamp(28px,3.6vw,40px);line-height:1.1;letter-spacing:.34em}
-.brand h1 span{font-family:var(--f-mono);font-weight:400;font-size:11px;letter-spacing:.32em;color:var(--sky-ink-soft)}
+.brand h1 .lt{font-family:var(--f-mono);font-weight:400;font-size:11px;letter-spacing:.32em;color:var(--sky-ink-soft)}
 .spec{margin:14px 0 0;padding-top:12px;border-top:1px solid currentColor;border-top-color:var(--sky-ink-soft);width:fit-content;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.08em;color:var(--sky-ink-soft);font-variant-numeric:tabular-nums}
 .hint{margin:6px 0 0;font-size:11.5px;letter-spacing:.12em;color:var(--sky-ink-soft);transition:opacity .6s ease}
 .hint.gone{opacity:0}
@@ -126,6 +133,10 @@ body{height:100%;background:var(--bg);color:var(--ink);font-family:var(--f-body)
 .spin[aria-pressed="true"] .sw{background:var(--accent);border-color:var(--accent)}
 .spin[aria-pressed="true"] .sw::after{transform:translateX(14px);background:var(--panel-solid)}
 .toggles{display:flex;align-items:center;gap:20px}
+.lang{position:absolute;top:24px;right:max(20px,env(safe-area-inset-right,0px));pointer-events:auto;display:inline-flex;gap:2px;padding:2px;border:1px solid var(--sky-ink-soft);border-radius:999px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.lng{font:inherit;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.08em;line-height:1;padding:6px 11px;border:0;border-radius:999px;background:transparent;color:var(--sky-ink-soft);cursor:pointer;transition:background .2s,color .2s}
+.lng:hover{color:var(--sky-ink)}
+.lng[aria-pressed="true"]{background:var(--sky-ink);color:var(--sky-ink-inv)}
 .dock-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px}
 .styles{display:inline-flex;gap:2px;padding:2px;border:1px solid var(--line);border-radius:calc(var(--radius) * .6)}
 .sty{font:inherit;font-size:12px;letter-spacing:.1em;line-height:1;padding:6px 10px;border:0;border-radius:calc(var(--radius) * .45);background:transparent;color:var(--muted);cursor:pointer;transition:background .2s,color .2s}
@@ -150,6 +161,10 @@ button:focus-visible{outline:1px solid var(--ink);outline-offset:3px}
 @media (max-width:600px){
   .ui{padding-block:18px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
   .brand h1{gap:12px;letter-spacing:.26em}
+  .lang{top:18px;right:max(16px,env(safe-area-inset-right,0px))}
+  .brand h1,.kicker{max-width:calc(100vw - 150px)}
+  .spec{font-size:11px;letter-spacing:.03em}
+  .ui::before{content:"";position:absolute;inset:0 0 auto;height:190px;background:linear-gradient(180deg,var(--scrim) 0%,var(--scrim) 45%,transparent 100%);pointer-events:none;z-index:-1;transition:background 1.2s ease}
   .dock{padding:14px 16px 10px;gap:10px}
   .caption{font-size:14px;line-height:1.75;min-height:3.5em}
   .tabs{column-gap:15px}
@@ -167,53 +182,128 @@ button:focus-visible{outline:1px solid var(--ink);outline-offset:3px}
   <div class="sky sky-morning" data-sky="morning"></div>
   <div class="sky sky-dusk on" data-sky="dusk"></div>
   <div class="sky sky-night" data-sky="night"><div class="stars"></div></div>
-  <canvas id="c" aria-label="梧桐里 Loft 的立体模型，可拖动旋转"></canvas>
+  <canvas id="c" data-i18n-aria="canvas" aria-label="梧桐里 Loft 的立体模型，可拖动旋转"></canvas>
 
   <div class="ui">
     <header class="brand">
       <p class="kicker">No.7 Wutong Lane</p>
-      <h1>梧桐里<span>LOFT</span></h1>
-      <p class="spec">68 m² · 挑高 5.4 m · 3 只暹罗 · 1:50</p>
+      <h1><span data-i18n="name">梧桐里</span><span class="lt">LOFT</span></h1>
+      <p class="spec" data-i18n="spec">68 m² · 挑高 5.4 m · 3 只暹罗 · 1:50</p>
       <p class="hint" id="hint">拖动旋转 · 滚轮缩放 · 右键平移</p>
     </header>
+    <div class="lang" role="group" data-i18n-aria="langGroup" aria-label="语言">
+      <button class="lng" data-lang="zh" aria-pressed="true">中文</button>
+      <button class="lng" data-lang="en" aria-pressed="false">EN</button>
+    </div>
 
-    <section class="dock" id="dock" aria-label="观看方式">
+    <section class="dock" id="dock" data-i18n-aria="dock" aria-label="观看方式">
       <div class="dock-top">
         <p class="eyebrow" id="eyebrow">黄昏 17:20 · 全景</p>
-        <div class="styles" role="group" aria-label="风格">
-          <button class="sty" id="s-minimal" data-style="minimal" aria-pressed="true">性冷淡</button>
-          <button class="sty" id="s-warm" data-style="warm" aria-pressed="false">复古暖调</button>
-          <button class="sty" id="s-neon" data-style="neon" aria-pressed="false">城市霓虹</button>
+        <div class="styles" role="group" data-i18n-aria="styleGroup" aria-label="风格">
+          <button class="sty" id="s-minimal" data-style="minimal" data-i18n="minimal" aria-pressed="true">性冷淡</button>
+          <button class="sty" id="s-warm" data-style="warm" data-i18n="warm" aria-pressed="false">复古暖调</button>
+          <button class="sty" id="s-neon" data-style="neon" data-i18n="neon" aria-pressed="false">城市霓虹</button>
         </div>
       </div>
       <p class="caption" id="caption" aria-live="polite">老厂房改成的家，挑高 5.4 米。楼上睡觉，楼下过日子，三只猫哪里都去。</p>
-      <div class="tabs" role="group" aria-label="视角">
-        <button class="tab" id="v-all" data-view="all" aria-pressed="true">全景</button>
-        <button class="tab" id="v-living" data-view="living" aria-pressed="false">客厅</button>
-        <button class="tab" id="v-bedroom" data-view="bedroom" aria-pressed="false">卧室</button>
-        <button class="tab" id="v-kitchen" data-view="kitchen" aria-pressed="false">厨房</button>
-        <button class="tab" id="v-stairs" data-view="stairs" aria-pressed="false">楼梯</button>
-        <button class="tab" id="v-books" data-view="books" aria-pressed="false">照片墙</button>
+      <div class="tabs" role="group" data-i18n-aria="viewGroup" aria-label="视角">
+        <button class="tab" id="v-all" data-view="all" data-i18n="views.all" aria-pressed="true">全景</button>
+        <button class="tab" id="v-living" data-view="living" data-i18n="views.living" aria-pressed="false">客厅</button>
+        <button class="tab" id="v-bedroom" data-view="bedroom" data-i18n="views.bedroom" aria-pressed="false">卧室</button>
+        <button class="tab" id="v-kitchen" data-view="kitchen" data-i18n="views.kitchen" aria-pressed="false">厨房</button>
+        <button class="tab" id="v-stairs" data-view="stairs" data-i18n="views.stairs" aria-pressed="false">楼梯</button>
+        <button class="tab" id="v-books" data-view="books" data-i18n="views.books" aria-pressed="false">照片墙</button>
       </div>
       <div class="controls">
-        <div class="seg" role="group" aria-label="时间">
+        <div class="seg" role="group" data-i18n-aria="moodGroup" aria-label="时间">
           <button id="m-morning" data-mood="morning" aria-pressed="false">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="2.8"/><path d="M8 1.6v1.6M8 12.8v1.6M1.6 8h1.6M12.8 8h1.6M3.5 3.5l1.1 1.1M11.4 11.4l1.1 1.1M3.5 12.5l1.1-1.1M11.4 4.6l1.1-1.1"/></svg>清晨</button>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="2.8"/><path d="M8 1.6v1.6M8 12.8v1.6M1.6 8h1.6M12.8 8h1.6M3.5 3.5l1.1 1.1M11.4 11.4l1.1 1.1M3.5 12.5l1.1-1.1M11.4 4.6l1.1-1.1"/></svg><span data-i18n="moods.morning">清晨</span></button>
           <button id="m-dusk" data-mood="dusk" aria-pressed="true">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><path d="M3.6 11a4.4 4.4 0 0 1 8.8 0M1.5 11h13M5 13.6h6M8 3.2v1.4M3.4 5.4l1 1M12.6 5.4l-1 1"/></svg>黄昏</button>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><path d="M3.6 11a4.4 4.4 0 0 1 8.8 0M1.5 11h13M5 13.6h6M8 3.2v1.4M3.4 5.4l1 1M12.6 5.4l-1 1"/></svg><span data-i18n="moods.dusk">黄昏</span></button>
           <button id="m-night" data-mood="night" aria-pressed="false">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M12.6 10.2A5.4 5.4 0 0 1 5.8 3.4a5.4 5.4 0 1 0 6.8 6.8z"/></svg>夜晚</button>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M12.6 10.2A5.4 5.4 0 0 1 5.8 3.4a5.4 5.4 0 1 0 6.8 6.8z"/></svg><span data-i18n="moods.night">夜晚</span></button>
         </div>
         <div class="toggles">
-          <button class="music" id="music" aria-pressed="false" title="原创的城市流行风配乐，在浏览器里实时合成"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span id="music-label">音乐</span></button>
-          <button class="spin" id="spin" aria-pressed="true"><span class="sw" aria-hidden="true"></span>自动旋转</button>
+          <button class="music" id="music" aria-pressed="false" data-i18n-title="musicTitle" title="原创的城市流行风配乐，在浏览器里实时合成"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span id="music-label" data-i18n="music">音乐</span></button>
+          <button class="spin" id="spin" aria-pressed="true"><span class="sw" aria-hidden="true"></span><span data-i18n="spin">自动旋转</span></button>
         </div>
       </div>
     </section>
   </div>
 
-  <div class="loader" id="loader">正在搭建</div>
+  <div class="loader" id="loader" data-i18n="loading">正在搭建</div>
 </div>
+<script>
+/* Language: #zh / #en in the link wins, then the viewer's last choice, then the browser language. */
+const I18N={
+  zh:{title:'梧桐里 Loft',name:'梧桐里',spec:'68 m² · 挑高 5.4 m · 3 只暹罗 · 1:50',hint:'拖动旋转 · 滚轮缩放 · 右键平移',hintTouch:'单指旋转 · 双指缩放',
+    dock:'观看方式',styleGroup:'风格',viewGroup:'视角',moodGroup:'时间',langGroup:'语言',canvas:'梧桐里 Loft 的立体模型，可拖动旋转',
+    minimal:'性冷淡',warm:'复古暖调',neon:'城市霓虹',views:{all:'全景',living:'客厅',bedroom:'卧室',kitchen:'厨房',stairs:'楼梯',books:'照片墙'},moods:{morning:'清晨',dusk:'黄昏',night:'夜晚'},
+    music:'音乐',musicNA:'浏览器不支持音频',musicFail:'音频没能启动',musicTitle:'原创的城市流行风配乐，在浏览器里实时合成',spin:'自动旋转',
+    loading:'正在搭建',loadFail:'3D 场景没能加载，请检查网络后刷新页面。',noWebGL:'这台设备暂时无法显示 3D 场景。',
+    cap:{base:{
+  all:{morning:'老厂房改成的家，挑高 5.4 米。三只暹罗醒得比人早，已经在等早饭了。',dusk:'老厂房改成的家，挑高 5.4 米。楼上睡觉，楼下过日子，三只猫哪里都去。',night:'整条弄堂都安静了，这扇钢窗还亮着。三只猫都在家，今天也平安地过完了。'},
+  living:{morning:'打完早场网球回来，球拍靠在唱片柜边上。小猫已经把一颗网球据为己有。',dusk:'傍晚的光穿过钢窗，在水泥地上落下格子。小猫趴在地毯上，按住一颗网球不放。',night:'放一张城市流行的唱片，把落地灯调暗一点。小猫还在跟那颗网球较劲。'},
+  bedroom:{morning:'醒来的时候，大猫睡在脚边，楼下飘上来咖啡的味道。',dusk:'床头一盏纸灯，栏杆上夹着这一年拍的拍立得。大猫已经先睡了。',night:'纸灯调到最暗，大猫占了床尾最暖的地方。晚安。'},
+  kitchen:{morning:'周末的早晨，岛台上有面包、柠檬，和一杯刚做好的咖啡。三只碗已经空了。',dusk:'岛台够两个人一起做饭。窗边的三脚架上，相机还对着外面的梧桐。',night:'餐桌上点两支蜡烛，剩下的汤明天还能再热一次。'},
+  stairs:{morning:'二猫坐在第四级台阶上，等人下楼开罐头。楼梯下停着自行车。',dusk:'上楼的白墙上挂着那块单板，每年冬天它会被取下来一次。',night:'单板在墙上休息，二猫在台阶上值夜班。'},
+  books:{morning:'书墙上面挂着自己拍的黑白照片：雪山、红土场，还有三只猫的合影。',dusk:'一把黑色皮椅，一盏落地灯。抬头就是去年冬天在雪山拍的那张。',night:'下雨的晚上坐在皮椅上翻照片，一张一张想起那些地方。'},
+},warm:{
+  living:{dusk:'傍晚的光穿过钢窗，在木地板上落下格子。小猫趴在地毯上，按住一颗网球不放。'},
+  kitchen:{morning:'周末的早晨，岛台上有面包、柠檬，和一壶刚滴好的咖啡。三只碗已经空了。'},
+  stairs:{dusk:'上楼的砖墙上挂着那块单板，每年冬天它会被取下来一次。'},
+  books:{morning:'书墙上面挂着自己拍的照片：雪山、红土场，还有三只猫的合影。',dusk:'一把旧皮椅，一盏落地灯。抬头就是去年冬天在雪山拍的那张。'},
+},neon:{
+  all:{night:'整条弄堂都安静了，只有这扇窗里的霓虹还亮着。三只猫都在家，今天也平安地过完了。'},
+  living:{dusk:'晚霞把水磨石地染成粉色。小猫趴在地毯上，按住一颗网球不放。',night:'放一张城市流行的唱片，霓虹灯把房间照成粉蓝色。小猫还在跟那颗网球较劲。'},
+  bedroom:{dusk:'夹层边上的灯带亮起来了，栏杆上夹着这一年拍的拍立得。大猫已经先睡了。',night:'纸灯调成粉色，大猫占了床尾最暖的地方。晚安。'},
+  stairs:{dusk:'粉色砖墙上挂着那块单板，旁边那盏霓虹落日每天傍晚准时亮起。'},
+  books:{morning:'书墙上面挂着自己拍的照片，洗成了粉蓝双色：雪山、红土场，还有三只猫的合影。',dusk:'一把青绿色丝绒椅，一盏落地灯。抬头就是去年冬天在雪山拍的那张。'},
+}}},
+  en:{title:'Wutong Lane Loft',name:'Wutong Lane',spec:'68 m² · 5.4 m ceilings · 3 Siamese cats · 1:50',hint:'Drag to rotate · Scroll to zoom · Right-drag to pan',hintTouch:'Drag to rotate · Pinch to zoom',
+    dock:'View controls',styleGroup:'Style',viewGroup:'Views',moodGroup:'Time of day',langGroup:'Language',canvas:'3D model of the Wutong Lane loft. Drag to rotate.',
+    minimal:'Minimal',warm:'Warm Vintage',neon:'City Neon',views:{all:'Overview',living:'Living',bedroom:'Bedroom',kitchen:'Kitchen',stairs:'Stairs',books:'Photo wall'},moods:{morning:'Morning',dusk:'Dusk',night:'Night'},
+    music:'Music',musicNA:'Audio not supported',musicFail:"Audio didn't start",musicTitle:'An original city-pop soundtrack, synthesized live in your browser',spin:'Auto-rotate',
+    loading:'Building the loft',loadFail:"The 3D scene didn't load. Check your connection and refresh.",noWebGL:"This device can't display the 3D scene.",
+    cap:{
+    base:{
+      all:{morning:'An old factory turned into a home, with 5.4-metre ceilings. The three Siamese are up before anyone and already waiting for breakfast.',dusk:'An old factory turned into a home, with 5.4-metre ceilings. Sleep upstairs, live downstairs, and the three cats go everywhere.',night:'The whole lane has gone quiet, but this steel window is still lit. All three cats are home. Another good day, done.'},
+      living:{morning:'Back from early tennis, the rackets lean against the record cabinet. The kitten has already claimed a ball.',dusk:'Evening light falls through the steel window in squares across the concrete floor. The kitten lies on the rug, pinning a tennis ball.',night:'A city-pop record is spinning and the floor lamp is turned low. The kitten is still wrestling that tennis ball.'},
+      bedroom:{morning:'Waking up with the big cat asleep at your feet and the smell of coffee drifting up from downstairs.',dusk:"A paper lantern over the bed, and this year's Polaroids clipped to the railing. The big cat has gone to bed early.",night:'The lantern is down to its lowest, and the big cat has taken the warmest spot at the foot of the bed. Good night.'},
+      kitchen:{morning:'Weekend morning: bread, lemons and a fresh coffee on the island. The three bowls are already empty.',dusk:'The island fits two people cooking together. By the window, the camera on its tripod is still pointed at the plane tree outside.',night:'Two candles on the dining table. The leftover soup will be just as good tomorrow.'},
+      stairs:{morning:'The middle cat sits on the fourth step, waiting for someone to come down and open a tin. The bike lives under the stairs.',dusk:'The snowboard hangs on the white wall by the stairs. It comes down once every winter.',night:'The snowboard rests on the wall, and the middle cat keeps the night watch on the stairs.'},
+      books:{morning:'Above the bookshelf hang your own black-and-white photos: snowy mountains, a clay court, and the three cats together.',dusk:"A black leather chair and a floor lamp. Look up and there's the one you took on the mountain last winter.",night:'A rainy night in the leather chair, going through photos and remembering each place.'},
+    },
+    warm:{
+      living:{dusk:'Evening light falls through the steel window in squares across the wood floor. The kitten lies on the rug, pinning a tennis ball.'},
+      kitchen:{morning:'Weekend morning: bread, lemons and a fresh pot of pour-over on the island. The three bowls are already empty.'},
+      stairs:{dusk:'The snowboard hangs on the brick wall by the stairs. It comes down once every winter.'},
+      books:{morning:'Above the bookshelf hang your own photos: snowy mountains, a clay court, and the three cats together.',dusk:"An old leather chair and a floor lamp. Look up and there's the one you took on the mountain last winter."},
+    },
+    neon:{
+      all:{night:'The whole lane has gone quiet; only the neon in this window is still on. All three cats are home. Another good day, done.'},
+      living:{dusk:'The sunset turns the terrazzo floor pink. The kitten lies on the rug, pinning a tennis ball.',night:'A city-pop record is spinning and the neon washes the room pink and blue. The kitten is still wrestling that tennis ball.'},
+      bedroom:{dusk:"The light strip along the mezzanine has come on, and this year's Polaroids are clipped to the railing. The big cat has gone to bed early.",night:'The lantern glows pink, and the big cat has taken the warmest spot at the foot of the bed. Good night.'},
+      stairs:{dusk:'The snowboard hangs on the pink brick wall, next to a neon sunset that switches on every evening.'},
+      books:{morning:'Above the bookshelf hang your own photos, printed in pink-and-blue duotone: snowy mountains, a clay court, and the three cats together.',dusk:"A teal velvet chair and a floor lamp. Look up and there's the one you took on the mountain last winter."},
+    },
+  }},
+};
+let LANG=(()=>{const h=(location.hash||'').slice(1);if(I18N[h])return h;try{const v=localStorage.getItem('wutongli-lang');if(I18N[v])return v;}catch(e){}return /^zh/i.test(navigator.language||'')?'zh':'en';})();
+function t(k){return k.split('.').reduce((o,p)=>o&&o[p],I18N[LANG]);}
+function applyStaticLang(){
+  const app=document.getElementById('app');
+  document.documentElement.lang=LANG==='zh'?'zh-CN':'en';app.dataset.lang=LANG;document.title=t('title');
+  document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=t(el.dataset.i18n);});
+  document.querySelectorAll('[data-i18n-aria]').forEach(el=>el.setAttribute('aria-label',t(el.dataset.i18nAria)));
+  document.querySelectorAll('[data-i18n-title]').forEach(el=>el.setAttribute('title',t(el.dataset.i18nTitle)));
+  document.getElementById('hint').textContent=t(matchMedia('(pointer: coarse)').matches?'hintTouch':'hint');
+  document.querySelectorAll('.lng').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===LANG)));
+}
+applyStaticLang();
+document.getElementById('eyebrow').textContent=`${t('moods.dusk')} 17:20 · ${t('views.all')}`;
+document.getElementById('caption').textContent=t('cap.base.all.dusk');
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -221,15 +311,14 @@ button:focus-visible{outline:1px solid var(--ink);outline-offset:3px}
 (function(){
 'use strict';
 const app=document.getElementById('app'),dock=document.getElementById('dock'),loader=document.getElementById('loader');
-if(!window.THREE||!THREE.OrbitControls){loader.textContent='3D 场景没能加载，请检查网络后刷新页面。';return;}
+if(!window.THREE||!THREE.OrbitControls){loader.textContent=t('loadFail');return;}
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const coarse=matchMedia('(pointer: coarse)').matches;
-if(coarse)document.getElementById('hint').textContent='单指旋转 · 双指缩放';
 
 const canvas=document.getElementById('c');
 let renderer;
 try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,powerPreference:'high-performance'});}
-catch(e){loader.textContent='这台设备暂时无法显示 3D 场景。';return;}
+catch(e){loader.textContent=t('noWebGL');return;}
 renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,coarse?1.5:2));
 renderer.outputEncoding=THREE.sRGBEncoding;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
@@ -432,14 +521,14 @@ const plateC=mk(560,88);
 let plateStyle='minimal';
 function drawPlate(st=plateStyle){
   plateStyle=st;const g=plateC.getContext('2d'),warm=st==='warm';
-  if(st==='neon'){const gr=g.createLinearGradient(0,0,560,0);gr.addColorStop(0,'#1d1433');gr.addColorStop(.5,'#2b1b4f');gr.addColorStop(1,'#1d1433');g.fillStyle=gr;g.fillRect(0,0,560,88);g.textAlign='center';g.textBaseline='middle';g.font='32px "ZCOOL QingKe HuangYou","Noto Sans SC",sans-serif';g.shadowColor='#ff4fa3';g.shadowBlur=14;g.fillStyle='#ffd1e6';g.fillText('梧桐里 7 号 · LOFT · 1 : 50',280,46);g.shadowBlur=0;return;}
+  if(st==='neon'){const gr=g.createLinearGradient(0,0,560,0);gr.addColorStop(0,'#1d1433');gr.addColorStop(.5,'#2b1b4f');gr.addColorStop(1,'#1d1433');g.fillStyle=gr;g.fillRect(0,0,560,88);g.textAlign='center';g.textBaseline='middle';g.font='32px "ZCOOL QingKe HuangYou","Noto Sans SC",sans-serif';g.shadowColor='#ff4fa3';g.shadowBlur=14;g.fillStyle='#ffd1e6';g.fillText(LANG==='en'?'No. 7 Wutong Lane · Loft · 1 : 50':'梧桐里 7 号 · LOFT · 1 : 50',280,46);g.shadowBlur=0;return;}
   const gr=g.createLinearGradient(0,0,560,0);
   if(warm){gr.addColorStop(0,'#c49b51');gr.addColorStop(.5,'#dcb86d');gr.addColorStop(1,'#a8803c');}else{gr.addColorStop(0,'#bfc1c2');gr.addColorStop(.5,'#d9dadb');gr.addColorStop(1,'#b5b7b8');}
   g.fillStyle=gr;g.fillRect(0,0,560,88);
   for(let y=0;y<88;y+=2){g.fillStyle=`rgba(255,255,255,${(hash(y)*0.08).toFixed(3)})`;g.fillRect(0,y,560,1);}
   g.fillStyle=warm?'#3a2911':'#2a2a2a';g.textAlign='center';g.textBaseline='middle';
-  if(warm){g.font='30px "ZCOOL XiaoWei","Songti SC","STSong",serif';g.fillText('梧桐里 7 号 · LOFT · 1 : 50',280,46);}
-  else{g.font='300 27px "Noto Sans SC","PingFang SC",sans-serif';g.fillText('梧 桐 里 7 号   ·   LOFT   ·   1 : 50',280,46);}
+  if(warm){g.font='30px "ZCOOL XiaoWei","Songti SC","STSong",serif';g.fillText(LANG==='en'?'No. 7 Wutong Lane · Loft · 1 : 50':'梧桐里 7 号 · LOFT · 1 : 50',280,46);}
+  else{g.font='300 27px "Noto Sans SC","PingFang SC",sans-serif';g.fillText(LANG==='en'?'NO. 7   WUTONG LANE   ·   LOFT   ·   1 : 50':'梧 桐 里 7 号   ·   LOFT   ·   1 : 50',280,46);}
 }
 drawPlate();
 function barkCanvas(){
@@ -1423,35 +1512,17 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 controls.addEventListener('change',()=>{const t=controls.target;t.set(clamp(t.x,-6,6),clamp(t.y,0,5),clamp(t.z,-6,6));});
 
 const VIEWS={
-  all:{label:'全景',pos:[14.5,11,16],target:[0,1.5,0]},
-  living:{label:'客厅',pos:[5.8,4.7,7.6],target:[2.3,0.6,0.4]},
-  bedroom:{label:'卧室',pos:[-5.6,5.0,2.4],target:[-2.3,3.4,-2.0]},
-  kitchen:{label:'厨房',pos:[-1.1,1.85,5.4],target:[-2.5,1.0,-2.2]},
-  stairs:{label:'楼梯',pos:[1.0,4.0,6.8],target:[2.4,2.8,-2.9]},
-  books:{label:'照片墙',pos:[2.0,3.3,6.6],target:[4.4,2.8,-0.6]},
+  all:{pos:[14.5,11,16],target:[0,1.5,0]},
+  living:{pos:[5.8,4.7,7.6],target:[2.3,0.6,0.4]},
+  bedroom:{pos:[-5.6,5.0,2.4],target:[-2.3,3.4,-2.0]},
+  kitchen:{pos:[-1.1,1.85,5.4],target:[-2.5,1.0,-2.2]},
+  stairs:{pos:[1.0,4.0,6.8],target:[2.4,2.8,-2.9]},
+  books:{pos:[2.0,3.3,6.6],target:[4.4,2.8,-0.6]},
 };
-const CAP={
-  all:{morning:'老厂房改成的家，挑高 5.4 米。三只暹罗醒得比人早，已经在等早饭了。',dusk:'老厂房改成的家，挑高 5.4 米。楼上睡觉，楼下过日子，三只猫哪里都去。',night:'整条弄堂都安静了，这扇钢窗还亮着。三只猫都在家，今天也平安地过完了。'},
-  living:{morning:'打完早场网球回来，球拍靠在唱片柜边上。小猫已经把一颗网球据为己有。',dusk:'傍晚的光穿过钢窗，在水泥地上落下格子。小猫趴在地毯上，按住一颗网球不放。',night:'放一张城市流行的唱片，把落地灯调暗一点。小猫还在跟那颗网球较劲。'},
-  bedroom:{morning:'醒来的时候，大猫睡在脚边，楼下飘上来咖啡的味道。',dusk:'床头一盏纸灯，栏杆上夹着这一年拍的拍立得。大猫已经先睡了。',night:'纸灯调到最暗，大猫占了床尾最暖的地方。晚安。'},
-  kitchen:{morning:'周末的早晨，岛台上有面包、柠檬，和一杯刚做好的咖啡。三只碗已经空了。',dusk:'岛台够两个人一起做饭。窗边的三脚架上，相机还对着外面的梧桐。',night:'餐桌上点两支蜡烛，剩下的汤明天还能再热一次。'},
-  stairs:{morning:'二猫坐在第四级台阶上，等人下楼开罐头。楼梯下停着自行车。',dusk:'上楼的白墙上挂着那块单板，每年冬天它会被取下来一次。',night:'单板在墙上休息，二猫在台阶上值夜班。'},
-  books:{morning:'书墙上面挂着自己拍的黑白照片：雪山、红土场，还有三只猫的合影。',dusk:'一把黑色皮椅，一盏落地灯。抬头就是去年冬天在雪山拍的那张。',night:'下雨的晚上坐在皮椅上翻照片，一张一张想起那些地方。'},
-};
-const CAPW={
-  living:{dusk:'傍晚的光穿过钢窗，在木地板上落下格子。小猫趴在地毯上，按住一颗网球不放。'},
-  kitchen:{morning:'周末的早晨，岛台上有面包、柠檬，和一壶刚滴好的咖啡。三只碗已经空了。'},
-  stairs:{dusk:'上楼的砖墙上挂着那块单板，每年冬天它会被取下来一次。'},
-  books:{morning:'书墙上面挂着自己拍的照片：雪山、红土场，还有三只猫的合影。',dusk:'一把旧皮椅，一盏落地灯。抬头就是去年冬天在雪山拍的那张。'},
-};
-const CAPN={
-  all:{night:'整条弄堂都安静了，只有这扇窗里的霓虹还亮着。三只猫都在家，今天也平安地过完了。'},
-  living:{dusk:'晚霞把水磨石地染成粉色。小猫趴在地毯上，按住一颗网球不放。',night:'放一张城市流行的唱片，霓虹灯把房间照成粉蓝色。小猫还在跟那颗网球较劲。'},
-  bedroom:{dusk:'夹层边上的灯带亮起来了，栏杆上夹着这一年拍的拍立得。大猫已经先睡了。',night:'纸灯调成粉色，大猫占了床尾最暖的地方。晚安。'},
-  stairs:{dusk:'粉色砖墙上挂着那块单板，旁边那盏霓虹落日每天傍晚准时亮起。'},
-  books:{morning:'书墙上面挂着自己拍的照片，洗成了粉蓝双色：雪山、红土场，还有三只猫的合影。',dusk:'一把青绿色丝绒椅，一盏落地灯。抬头就是去年冬天在雪山拍的那张。'},
-};
-const capFor=(v,m)=>(style==='warm'&&CAPW[v]&&CAPW[v][m])||(style==='neon'&&CAPN[v]&&CAPN[v][m])||CAP[v][m];
+
+
+
+const capFor=(v,m)=>{const c=I18N[LANG].cap;return (style!=='minimal'&&c[style][v]&&c[style][v][m])||c.base[v][m];};
 function fitFactor(){const a=camera.aspect;return a>=1.4?1:a>=1?1.18:a>=0.7?1.45:1.85;}
 let camTween=null,view='all';
 const tmpV=new V3();
@@ -1606,7 +1677,7 @@ const capEl=document.getElementById('caption'),eyeEl=document.getElementById('ey
 let spinPref=!reduced,resumeTimer=null,capTimer=null;
 function setSpin(on){spinPref=on;spinBtn.setAttribute('aria-pressed',String(on));controls.autoRotate=on&&!camTween;}
 function updateText(){
-  eyeEl.textContent=`${MLABEL[mood][0]} ${MLABEL[mood][1]} · ${VIEWS[view].label}`;
+  eyeEl.textContent=`${t('moods')[mood]} ${MLABEL[mood][1]} · ${t('views')[view]}`;
   const txt=capFor(view,mood);if(capEl.textContent===txt)return;
   clearTimeout(capTimer);
   if(reduced){capEl.textContent=txt;return;}
@@ -1641,12 +1712,21 @@ function setStyle(st){
   updateText();
 }
 document.querySelectorAll('.sty').forEach(b=>b.addEventListener('click',()=>setStyle(b.dataset.style)));
+function setLang(l){
+  if(!I18N[l]||l===LANG)return;
+  LANG=l;
+  try{localStorage.setItem('wutongli-lang',l);}catch(e){}
+  try{history.replaceState(null,'','#'+l);}catch(e){}
+  applyStaticLang();updateText();drawPlate(plateStyle);plateTex.needsUpdate=true;
+}
+document.querySelectorAll('.lng').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.lang)));
+window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(I18N[h])setLang(h);});
 const musicBtn=document.getElementById('music'),musicLabel=document.getElementById('music-label');
-if(!Music.supported){musicBtn.disabled=true;musicLabel.textContent='浏览器不支持音频';}
+if(!Music.supported){musicBtn.disabled=true;musicLabel.dataset.i18n='musicNA';musicLabel.textContent=t('musicNA');}
 musicBtn.addEventListener('click',async()=>{
   if(Music.playing){Music.stop();musicBtn.setAttribute('aria-pressed','false');return;}
-  musicBtn.setAttribute('aria-pressed','true');musicLabel.textContent='音乐';
-  try{if(!(await Music.start()))throw 0;}catch(e){musicBtn.setAttribute('aria-pressed','false');musicLabel.textContent='音频没能启动';}
+  musicBtn.setAttribute('aria-pressed','true');musicLabel.dataset.i18n='music';musicLabel.textContent=t('music');
+  try{if(!(await Music.start()))throw 0;}catch(e){musicBtn.setAttribute('aria-pressed','false');musicLabel.dataset.i18n='musicFail';musicLabel.textContent=t('musicFail');}
 });
 controls.addEventListener('start',()=>{camTween=null;controls.autoRotate=false;clearTimeout(resumeTimer);hint.classList.add('gone');});
 controls.addEventListener('end',()=>{clearTimeout(resumeTimer);if(spinPref)resumeTimer=setTimeout(()=>{if(spinPref&&!camTween)controls.autoRotate=true;},4500);});
